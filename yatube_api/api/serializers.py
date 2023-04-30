@@ -44,5 +44,8 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = ('id', 'user', 'following')
-        read_only_fields = ('id', 'user')
-        extra_kwargs = {'following': {'required': True}}
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = instance.user.username
+        return representation

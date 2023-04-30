@@ -8,6 +8,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
+from rest_framework import filters
 
 from posts.models import Group, Post
 
@@ -54,6 +55,8 @@ class CommentViewSet(viewsets.ModelViewSet):
 class FollowViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['following__username']
 
     def get_queryset(self):
         return self.request.user.following.all()
@@ -63,12 +66,15 @@ class FollowViewSet(viewsets.ModelViewSet):
             User, username=serializer.validated_data['following']
         )
         if self.request.user == following_user:
-            return Response(
-                {'detail': 'Вы не можете быть подписаны на самого себя!'},
-                status=status.HTTP_400_BAD_REQUEST
+            raise serializer.ValidationError(
+                {'detail': 'Вы не можете быть подписаны на самого себя!'}
             )
         serializer.save(user=self.request.user, following=following_user)
-        return Response(serializer.data)
+        response_serializer = self.get_serializer(instance=serializer.instance)
+        return Response(
+            response_serializer.data,
+            status=status.HTTP_201_CREATED
+        )
 
     def get_object(self):
         return get_object_or_404(
