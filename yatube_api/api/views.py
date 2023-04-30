@@ -11,7 +11,6 @@ from rest_framework.response import Response
 from rest_framework import filters
 
 from posts.models import Group, Post
-
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     GroupSerializer,

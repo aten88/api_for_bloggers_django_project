@@ -1,6 +1,6 @@
-from rest_framework import serializers
-
 from django.contrib.auth.models import User
+
+from rest_framework import serializers
 
 from posts.models import Group, Post, Comment, Follow
 
