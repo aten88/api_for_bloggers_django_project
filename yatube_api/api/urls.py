@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from rest_framework import routers
 
-from api.views import GroupViewSet, PostViewSet, CommentViewSet
+from api.views import GroupViewSet, PostViewSet, CommentViewSet, FollowViewSet
 
 router_v1 = routers.DefaultRouter()
 router_v1.register('posts', PostViewSet, basename='post')
@@ -12,6 +12,7 @@ router_v1.register(
     CommentViewSet,
     basename='comments'
 )
+router_v1.register('follow', FollowViewSet, basename='follow')
 
 urlpatterns = [
     path('v1/', include('djoser.urls')),
