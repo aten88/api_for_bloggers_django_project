@@ -38,12 +38,15 @@ class CommentSerializer(serializers.ModelSerializer):
 class FollowSerializer(serializers.ModelSerializer):
     following = serializers.SlugRelatedField(
         queryset=User.objects.all(),
-        slug_field='username'
+        slug_field='username',
+        required=False
     )
+    user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Follow
         fields = ('id', 'user', 'following')
+        read_only_fields = ('user', )
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

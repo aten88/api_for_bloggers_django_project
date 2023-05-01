@@ -1,14 +1,13 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAuthenticatedOrReadOnly
 )
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.response import Response
-from rest_framework import filters
+from rest_framework import filters, serializers
 
 from posts.models import Group, Post
 from .permissions import IsAuthorOrReadOnly
@@ -61,19 +60,24 @@ class FollowViewSet(viewsets.ModelViewSet):
         return self.request.user.following.all()
 
     def perform_create(self, serializer):
-        following_user = get_object_or_404(
-            User, username=serializer.validated_data['following']
-        )
+        following_username = serializer.validated_data.get('following')
+        if following_username is None:
+            raise serializers.ValidationError(
+                {'following': 'Поле обязательно!'}
+            )
+        following_user = get_object_or_404(User, username=following_username)
         if self.request.user == following_user:
-            raise serializer.ValidationError(
+            raise serializers.ValidationError(
                 {'detail': 'Вы не можете быть подписаны на самого себя!'}
             )
+        if (
+            self.request.user.following.filter(following=following_user)
+            .exists()
+        ):
+            raise serializers.ValidationError(
+                {'detail': 'Вы уже подписаны на этого автора!'}
+            )
         serializer.save(user=self.request.user, following=following_user)
-        response_serializer = self.get_serializer(instance=serializer.instance)
-        return Response(
-            response_serializer.data,
-            status=status.HTTP_201_CREATED
-        )
 
     def get_object(self):
         return get_object_or_404(
