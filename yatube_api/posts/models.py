@@ -5,6 +5,7 @@ User = get_user_model()
 
 
 class Group(models.Model):
+    """Group model"""
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     description = models.TextField()
@@ -14,16 +15,13 @@ class Group(models.Model):
 
 
 class Post(models.Model):
+    """Post model"""
     text = models.TextField()
-    pub_date = models.DateTimeField(
-        'Дата публикации', auto_now_add=True
-    )
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='posts'
     )
-    image = models.ImageField(
-        upload_to='posts/', null=True, blank=True
-    )
+    image = models.ImageField(upload_to='posts/', null=True, blank=True)
     group = models.ForeignKey(
         Group, on_delete=models.SET_NULL,
         related_name='posts', blank=True, null=True
@@ -34,6 +32,7 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    """Comment model"""
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='comments'
     )
@@ -47,6 +46,7 @@ class Comment(models.Model):
 
 
 class Follow(models.Model):
+    """Follow model"""
     user = models.ForeignKey(
         User,
         related_name='following',

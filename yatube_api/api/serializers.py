@@ -6,12 +6,14 @@ from posts.models import Group, Post, Comment, Follow
 
 
 class GroupSerializer(serializers.ModelSerializer):
+    """Serialize all fields Group model"""
     class Meta:
         model = Group
         fields = '__all__'
 
 
 class PostSerializer(serializers.ModelSerializer):
+    """Serialize all fields Post model"""
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
@@ -24,6 +26,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    """Serialize all fields Comment model"""
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
@@ -36,6 +39,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
+    """Serialize all fields Follow model"""
     following = serializers.SlugRelatedField(
         queryset=User.objects.all(),
         slug_field='username',
@@ -49,6 +53,7 @@ class FollowSerializer(serializers.ModelSerializer):
         read_only_fields = ('user', )
 
     def to_representation(self, instance):
+        """Changed present user object"""
         representation = super().to_representation(instance)
         representation['user'] = instance.user.username
         return representation
