@@ -1,8 +1,6 @@
-from django.contrib.auth.models import User
-
 from rest_framework import serializers
 
-from posts.models import Group, Post, Comment, Follow
+from posts.models import Group, Post, Comment, Follow, User
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -39,21 +37,36 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    """Serialize all fields Follow model"""
+    """Serializer for Follow model."""
     following = serializers.SlugRelatedField(
         queryset=User.objects.all(),
         slug_field='username',
         required=False
     )
-    user = serializers.StringRelatedField(read_only=True)
+    user = serializers.SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field='username',
+        required=False
+    )
 
     class Meta:
         model = Follow
         fields = ('id', 'user', 'following')
-        read_only_fields = ('user', )
+        read_only_fields = ('user',)
 
-    def to_representation(self, instance):
-        """Changed present user object"""
-        representation = super().to_representation(instance)
-        representation['user'] = instance.user.username
-        return representation
+    def validate_following(self, value):
+        """Validate following user."""
+        if self.context['request'].user == value:
+            raise serializers.ValidationError(
+                {'detail': 'Вы не можете быть подписаны на самого себя!'}
+            )
+        if self.instance and self.instance.following == value:
+            return value
+        if Follow.objects.filter(
+            user=self.context['request'].user,
+            following=value
+        ).exists():
+            raise serializers.ValidationError(
+                {'detail': 'Вы уже подписаны на этого автора!'}
+            )
+        return value
