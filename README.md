@@ -22,8 +22,8 @@ coreschema,
 Установка
 
 Клонировать репозиторий и перейти в него в командной строке:
-git clone <ССЫЛКА РЕПОЗИТОРИЯ>
-cd api_final_yatube
+git clone https://github.com/aten88/api_for_bloggers_django_project/tree/master
+cd api_for_bloggers_django_project
 
 Cоздать и активировать виртуальное окружение:
 python 3.9 -m venv env
